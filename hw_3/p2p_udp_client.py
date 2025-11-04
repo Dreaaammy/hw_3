@@ -55,13 +55,11 @@ class P2PClient:
             logging.info(f"Control message: {obj} from {addr}")
 
     def _do_hole_punch(self, pub, priv, attempts=10, interval=0.5):
-        # alternate sending to public and private addresses to open NAT mappings
         logging.info(f"Starting hole punching to public={pub} private={priv}")
         for i in range(attempts):
             if self.peer_addr:
                 logging.info("Already connected to peer")
                 return
-            # send small UDP packets to both endpoints
             try:
                 self.sock.sendto(f'ping-from-{self.id}'.encode(), pub)
                 self.sock.sendto(f'ping-from-{self.id}'.encode(), priv)
@@ -71,7 +69,6 @@ class P2PClient:
         logging.info("Hole punching attempts finished; waiting for incoming or manual send to test connectivity")
 
     def connect(self, target_id):
-        # Ask server to provide peer addresses
         msg = {'type': 'connect', 'id': self.id, 'target': target_id, 'private_port': self.listen_port}
         self.sock.sendto(json.dumps(msg).encode(), self.server_addr)
         logging.info(f"Requested connection to {target_id} from rendezvous")
